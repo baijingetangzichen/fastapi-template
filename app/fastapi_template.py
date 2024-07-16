@@ -1,10 +1,11 @@
 import os
 import sys
+import time
 import logging
 
-import loguru
 import uvicorn
-from fastapi import FastAPI
+# from loguru import logger
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 
@@ -33,17 +34,31 @@ app.add_middleware(CORSMiddleware,
                    )
 app.include_router(user_router, prefix=f"{Config.FASTAPI_PREFIX}")
 app.include_router(role_router, prefix=f"{Config.FASTAPI_PREFIX}")
-
-loguru.logger.info(app.routes)
+logger = set_log_obj()
+# logger.info(app.routes)
 add_pagination(app)
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    # logger.info(f"request: Request属性 {dir(request)}")
+    logger.info(f"{request.url} 耗时 ：{'%.3g' % (process_time)}秒 ")
+    # X- 作为前缀代表专有自定义请求头
+    response.headers["X-Process-Time"] = str('%.3g' % (process_time))
+    return response
+
+
 if __name__ == "__main__":
 
     logging.root.setLevel(logging.DEBUG)
     logging.info("Starting on  %s:%d ", Config.APP_HOST, Config.APP_PORT)
 
     # main:app main下面的 app，相当于注入
-    # main: main.py 文件(也可理解为Python模块).
-    # app: main.py 中 app = FastAPI()
+    # main: fastapi_template.py 文件(也可理解为Python模块).
+    # app: fastapi_template.py 中 app = FastAPI()
     # 语句创建的app对象.
     # --reload: 在代码改变后重启服务器，只能在开发的时候使用
     uvicorn.run(app, host=Config.APP_HOST, port=Config.APP_PORT, reload=Config.APP_RELOAD, log_level=logging.DEBUG)

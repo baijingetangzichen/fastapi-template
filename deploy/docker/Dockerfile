@@ -10,7 +10,7 @@ ARG PIP_INSTALL="pip install --no-cache-dir -i http://172.16.210.191:39961/simpl
 RUN pip install -r requirements.txt \
     && rm -rf $WORKSPACE/requirements.txt \
     && chmod +x $WORKSPACE/start.sh \
-    && pip install sqlalchemy==2.0.31.dev0 -i
+    && pip install sqlalchemy==2.0.31.dev0
 
 COPY app $WORKSPACE/app
 COPY static $WORKSPACE/static
