@@ -12,8 +12,10 @@ class Config(ProxyConfig):
     APP_RELOAD = getenv("APP_RELOAD", "False") == "True"
     project_dir = dirname(dirname(abspath(dirname(__file__))))
     STATIC_DIR = join(project_dir, 'static')
-    LOG_LEVEL = getenv("LOG_LEVEL", "info")
+    LOG_LEVEL = getenv("LOG_LEVEL", "debug")
     FASTAPI_PREFIX = getenv("DEMO_API_PREFIX", "/fastapi-prefix")
+    # 数据库日志级别 sqlalchemy
+    DATABASES_LOG_LEVEL = getenv("DATABASES_LOG_LEVEL", "DEBUG")
     # 数据库配置
     # db类型 mysql postgresql
     DB_TYPE = getenv("DB_TYPE", "postgresql")

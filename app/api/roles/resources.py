@@ -14,20 +14,24 @@ from app.common.utils import get_uuid, async_bulk_insert, DB_COMMIT_CODE, muti_a
 from app.common.req_res_parse import FormatJSONResponse
 from app.common.pagination import Page, CustomPageParams
 
+
 from .models import Role
 from .schema import RoleSchema
-
+from .tasks import add_together, pow_func
 inner_router = APIRouter()
 
-
+from celery import chain as celery_chain
 @inner_router.get("/test")
-def add_node():
+async def add_node():
     data = {
         'code': 0,
         'message': '',
         'data': 'add role success'
     }
-    current_logger.info(dir(FormatJSONResponse))
+    add_together.delay(1, "2")
+    batch_chain = celery_chain(add_together.s(1, "2"), pow_func.s(3))
+    batch_chain.apply_async()
+    # current_logger.info(dir(FormatJSONResponse))
     # return JsonResponse(content=data, status_code=status.HTTP_200_OK, name="aaa")
     return FormatJSONResponse(status_code=status.HTTP_200_OK)
 

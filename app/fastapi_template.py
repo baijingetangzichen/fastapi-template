@@ -14,7 +14,7 @@ pro_base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(current_dir)
 sys.path.append(pro_base_dir)
 
-from app.config import Config, SharedStateMiddleware, set_log_obj
+from app.config import Config, SharedStateMiddleware, current_logger
 from app.api.users import user_router
 from app.api.roles import role_router
 
@@ -34,8 +34,8 @@ app.add_middleware(CORSMiddleware,
                    )
 app.include_router(user_router, prefix=f"{Config.FASTAPI_PREFIX}")
 app.include_router(role_router, prefix=f"{Config.FASTAPI_PREFIX}")
-logger = set_log_obj()
-# logger.info(app.routes)
+
+# current_logger.info(app.routes)
 add_pagination(app)
 
 
@@ -44,8 +44,7 @@ async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
-    # logger.info(f"request: Request属性 {dir(request)}")
-    logger.info(f"{request.url} 耗时 ：{'%.3g' % (process_time)}秒 ")
+    current_logger.info(f"{request.scope.get('path')} 耗时 ：{'%.3g' % (process_time)}秒, 状态码: {response.status_code} ")
     # X- 作为前缀代表专有自定义请求头
     response.headers["X-Process-Time"] = str('%.3g' % (process_time))
     return response

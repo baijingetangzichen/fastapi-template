@@ -17,3 +17,4 @@ fastapi-pagination==0.12.25
 fastapi-utils[all]==0.7.0
 fastapi-restful[all]==0.6.0
 gunicorn==22.0.0
+aioredis==2.0.1
